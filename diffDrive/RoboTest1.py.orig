@@ -1,0 +1,60 @@
+#!/usr/bin/python
+
+from Raspi_PWM_Servo_Driver import PWM
+import time
+
+# ===========================================================================
+# Example Code
+# ===========================================================================
+
+# Initialise the PWM device using the default address
+# bmp = PWM(0x40, debug=True)
+pwm = PWM(0x6F)
+
+servoMin = 150  # Min pulse length out of 4096
+servoMax = 600  # Max pulse length out of 4096
+
+def setServoPulse(channel, pulse):
+  pulseLength = 1000000                   # 1,000,000 us per second
+  pulseLength /= 60                       # 60 Hz
+  print "%d us per period" % pulseLength
+  pulseLength /= 4096                     # 12 bits of resolution
+  print "%d us per bit" % pulseLength
+  pulse *= 1000
+  pulse /= pulseLength
+  pwm.setPWM(channel, 0, pulse)
+  pwm.setPWM(channel, 1, pulse)
+
+pwm.setPWMFreq(60)                        # Set frequency to 60 Hz
+
+t = 0
+xnow = [0,0,0]
+xend = [1,0,0]
+direction = 1
+old_beta = 0
+vmax = 1
+base = .4
+
+
+while (True):
+
+  output = []
+  output = posq.step(t,xnow,xend,direction,old_beta,vmax,base)
+  
+  print(output)
+
+  if output[0] < .25:
+  	vl = 150
+  else:
+	vl = output[0]*600
+
+  if output[1] < .25:
+  	vr = 150
+  else:
+	vr = output[1]*600
+
+
+
+  # Change speed of continuous servo on channel O
+  pwm.setPWM(0, 0, vl)
+  pwm.setPWM(0, 1, vr)
